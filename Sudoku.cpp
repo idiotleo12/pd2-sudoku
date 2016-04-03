@@ -50,7 +50,6 @@ void Sudoku::giveQuestion(){
         if(no_ans(map)==1)
         {
             cout<<"0"<<endl;
-            //cout<<no_ans(map)<<endl;
             return 0;
         }
         if(mul_ans(map)==1)
@@ -58,7 +57,7 @@ void Sudoku::giveQuestion(){
             cout<<"2"<<endl;
             return 0;
         }
-        //print_out();
+
         success_put = true;
         while(success_put)
         {
@@ -69,18 +68,18 @@ void Sudoku::giveQuestion(){
             {
                 solve_easy();
             }
-            //print_out();
         }
 
         zero_count();
+
         if(zero_no==0)
         {
             cout<<endl;
             cout<<"1"<<endl;
-        //print out
             print_out();
             return 0;
         }
+
         //end of solve easy
         //print_out();
 
@@ -107,7 +106,7 @@ void Sudoku::giveQuestion(){
         }
 
         //end of mid solve
-        /*
+
         //start hard solve
         success_put = true;
         while(success_put)
@@ -133,7 +132,7 @@ void Sudoku::giveQuestion(){
 
 
 
-        */
+
         //end of hard solve
         cout<<"2";
 
@@ -496,6 +495,7 @@ void Sudoku::giveQuestion(){
 
     int Sudoku::zero_count()
     {
+        zero_no=0;
         where = -1;
         for(int i=0;i<81;i++)
         {
@@ -730,16 +730,22 @@ void Sudoku::giveQuestion(){
             }
 
     }
-/*
+
     int Sudoku::solve_hard(){
         find_zero();
+        bool suc=false;
         int zrow[9]={0};//put 1~9
         int zarr[3]={0};
+
         int wline = where/9;
-        int wll=where/27;
+        int wll=where/27;//compare with zarr
         int wcolumn = where%9;
         int wcc=wcolumn/3;
         int fakeplace = (wline/3)*3*9 +wcolumn/3*3;//the left-up of the 3*3 of where is in
+        int f1=fakeplace%27;
+        int f2=fakeplace-(fakeplace%9);
+
+        int put=0;
         //宮對行區塊摒除
         //find all 0 of col into arr
         for(int i=0;i<9;i++)
@@ -757,10 +763,100 @@ void Sudoku::giveQuestion(){
                 zarr[i/3]++;
             }
         }
-        //
+        //zarr[wll]=0;
+        //try
+        for(int i=1;i<10;i++)
+        {
+            for(int j=0;j<3;j++)
+            {
+                if(zarr[j]!=0&&j!=wll)
+                {
+                    if(map[j*27+f1]==i||map[j*27+f1+1]==i||map[j*27+f1+2]==i||map[j*27+f1+9]==i||map[j*27+f1+10]==i||map[j*27+f1+11]==i||map[j*27+f1+18]==i||map[j*27+f1+19]==i||map[j*27+f1+20]==i)
+                    {
+                        zarr[j]=0;
+                    }
+                }
+            }
+
+            for(int k=0;k<3;k++)
+            {
+                if(zarr[k]!=0&&zarr[wll]!=1)
+                {
+                    suc=false;
+                }
+                else
+                {
+                    suc=true;
+                    put=i;
+                }
+            }
+        }
+
+        if (suc)
+        {
+            map[where]=put;
+            return 0;
+        }
+
+        //end宮對行區塊摒除
+        //宮對列區塊摒除
+        put=0;
+        suc=false;
+        zrow[9]={0};//put 1~9
+        zarr[3]={0};
+        for(int i=0;i<9;i++)
+        {
+            if(map[wline*9+i]==0)
+            {
+                zrow[i]++;
+            }
+        }
+        //zero arr
+        for(int i=0;i<9;i++)
+        {
+            if(zrow[i]==1)
+            {
+                zarr[i/3]++;
+            }
+        }
+        //zarr[wll]=0;
+        //try
+        for(int i=1;i<10;i++)
+        {
+            for(int j=0;j<3;j++)
+            {
+                if(zarr[j]!=0&&j!=wll)
+                {
+                    if(map[j*9+f2]==i||map[j*9+f2+1]==i||map[j*9+f2+2]==i||map[j*9+f2+9]==i||map[j*9+f2+10]==i||map[j*9+f2+11]==i||map[j*9+f2+18]==i||map[j*9+f2+19]==i||map[j*9+f2+20]==i)
+                    {
+                        zarr[j]=0;
+                    }
+                }
+            }
+
+            for(int k=0;k<3;k++)
+            {
+                if(zarr[k]!=0&&zarr[wll]!=1)
+                {
+                    suc=false;
+                }
+                else
+                {
+                    suc=true;
+                    put=i;
+                }
+            }
+        }
+
+        if (suc)
+        {
+            map[where]=put;
+            return 0;
+        }
+        //end of 宮對列區塊摒除
 
     }
-*/
+
 
     //還沒考慮還沒開始解之前看不出來的無解
     int Sudoku::no_ans(int get[81]){ //if no ans then return 1,else return 0
