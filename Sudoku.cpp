@@ -12,6 +12,8 @@ using namespace std;
 
 Sudoku::Sudoku(){
     zero_no=0;
+    zero_tmp=0;
+    zero_tmp2=0;
     success_put = true;
 }
 
@@ -108,6 +110,7 @@ void Sudoku::giveQuestion(){
         //end of mid solve
 
         //start hard solve
+        /*
         success_put = true;
         while(success_put)
         {
@@ -132,9 +135,33 @@ void Sudoku::giveQuestion(){
 
 
 
-
+*/
         //end of hard solve
-        cout<<"2";
+        clone_map();
+        zero_count_tmp();
+        zero_count_tmp2();
+        //zero_count();
+        //zero_tmp=zero_no;
+        //zero_tmp2=zero_no;
+
+        if(backtrack_back()&&backtrack_front())
+        {
+            if(only())
+            {
+                cout<<"1"<<endl;
+                print_out_tmp();
+            }
+            else
+            {
+                cout<<"2";
+            }
+        }
+        else
+        {
+            cout<<"0";
+        }
+
+        //cout<<"2";
 
 
 
@@ -474,7 +501,19 @@ void Sudoku::giveQuestion(){
     void Sudoku::print_out()
     {
         for(int i=0;i<81;i++){
-            cout<<setw(2)<<map[i];
+            //cout<<setw(2)<<map[i];
+            cout<<map[i]<<" ";
+            if (i==8||i==17||i==26||i==35||i==44||i==53||i==62||i==71||i==80)
+                cout<<endl;
+        }
+        cout<<"\n\n"<<endl;
+    }
+
+    void Sudoku::print_out_tmp()
+    {
+        for(int i=0;i<81;i++){
+            //cout<<setw(2)<<map[i];
+            cout<<tmp[i]<<" ";
             if (i==8||i==17||i==26||i==35||i==44||i==53||i==62||i==71||i==80)
                 cout<<endl;
         }
@@ -502,6 +541,32 @@ void Sudoku::giveQuestion(){
             if(map[i]==0)
             {
                 zero_no++;
+            }
+        }
+    }
+
+    int Sudoku::zero_count_tmp()
+    {
+        zero_tmp=0;
+        //where = -1;
+        for(int i=0;i<81;i++)
+        {
+            if(tmp[i]==0)
+            {
+                zero_tmp++;
+            }
+        }
+    }
+
+    int Sudoku::zero_count_tmp2()
+    {
+        zero_tmp2=0;
+        //where = -1;
+        for(int i=0;i<81;i++)
+        {
+            if(tmp2[i]==0)
+            {
+                zero_tmp2++;
             }
         }
     }
@@ -537,6 +602,71 @@ void Sudoku::giveQuestion(){
 
         return false;
     }
+
+    bool Sudoku::check_good_tmp(int wh,int num)//return true if good
+    {
+        int wline = wh/9;
+        int wcolumn = wh%9;
+        int fakeplace = (wline/3)*3*9 +wcolumn/3*3;//the left-up of the 3*3 of where is in
+
+        //橫
+        for(int i=0;i<9;i++)
+        {
+            if(tmp[wline*9+i]==num)
+            {
+                return false;
+            }
+        }
+        //直行
+        for(int j=0;j<9;j++)
+        {
+            if(tmp[j*9+wcolumn]==num)
+            {
+                return false;
+            }
+        }
+        //方框
+        if(tmp[fakeplace]==num||tmp[fakeplace+1]==num||tmp[fakeplace+2]==num||tmp[fakeplace+9]==num||tmp[fakeplace+10]==num||tmp[fakeplace+11]==num||tmp[fakeplace+18]==num||tmp[fakeplace+19]==num||tmp[fakeplace+20]==num)
+        {
+            return false;
+        }
+
+
+        return true;
+    }
+
+    bool Sudoku::check_good_tmp2(int wh,int num)//return true if good
+    {
+        int wline = wh/9;
+        int wcolumn = wh%9;
+        int fakeplace = (wline/3)*3*9 +wcolumn/3*3;//the left-up of the 3*3 of where is in
+
+        //橫
+        for(int i=0;i<9;i++)
+        {
+            if(tmp2[wline*9+i]==num)
+            {
+                return false;
+            }
+        }
+        //直行
+        for(int j=0;j<9;j++)
+        {
+            if(tmp2[j*9+wcolumn]==num)
+            {
+                return false;
+            }
+        }
+        //方框
+        if(tmp2[fakeplace]==num||tmp2[fakeplace+1]==num||tmp2[fakeplace+2]==num||tmp2[fakeplace+9]==num||tmp2[fakeplace+10]==num||tmp2[fakeplace+11]==num||tmp2[fakeplace+18]==num||tmp2[fakeplace+19]==num||tmp2[fakeplace+20]==num)
+        {
+            return false;
+        }
+
+
+        return true;
+    }
+
 
     int Sudoku::solve_easy(){
 
@@ -780,14 +910,14 @@ void Sudoku::giveQuestion(){
 
             for(int k=0;k<3;k++)
             {
-                if(zarr[k]!=0&&zarr[wll]!=1)
-                {
-                    suc=false;
-                }
-                else
+                if(zarr[k]==0&&zarr[wll]==1)
                 {
                     suc=true;
                     put=i;
+                }
+                else
+                {
+                    suc=false;
                 }
             }
         }
@@ -836,14 +966,15 @@ void Sudoku::giveQuestion(){
 
             for(int k=0;k<3;k++)
             {
-                if(zarr[k]!=0&&zarr[wll]!=1)
-                {
-                    suc=false;
-                }
-                else
+                if(zarr[k]==0&&zarr[wll]==1)
                 {
                     suc=true;
                     put=i;
+                }
+                else
+                {
+                    suc=false;
+
                 }
             }
         }
@@ -857,6 +988,56 @@ void Sudoku::giveQuestion(){
 
     }
 
+    bool Sudoku::backtrack_front()
+    {
+        if (zero_tmp==0) {
+            return true;
+        }
+        for (int i = 0; i<81;i++) {
+            if (tmp[i]==0)
+            {
+                for(int n=1;n<10;n++)
+                {
+                    if(check_good_tmp(i,n))
+                    {
+                        tmp[i]=n;
+                        zero_tmp--;
+                        if(backtrack_front())
+                            return true;
+                        tmp[i]=0;
+                        zero_tmp++;
+                    }
+                }
+                return false;
+            }
+        }
+    }
+
+    bool Sudoku::backtrack_back()
+    {
+        //zero_count_tmp();
+        if (zero_tmp2==0) {
+            return true;
+        }
+        for (int i = 0; i<81;i++) {
+            if (tmp2[i]==0)
+            {
+                for(int n=9;n>0;n--)
+                {
+                    if(check_good_tmp2(i,n))
+                    {
+                        tmp2[i]=n;
+                        zero_tmp2--;
+                        if(backtrack_back())
+                            return true;
+                        tmp2[i]=0;
+                        zero_tmp2++;
+                    }
+                }
+                return false;
+            }
+        }
+    }
 
     //還沒考慮還沒開始解之前看不出來的無解
     int Sudoku::no_ans(int get[81]){ //if no ans then return 1,else return 0
@@ -1151,3 +1332,22 @@ void Sudoku::giveQuestion(){
     }//end 多解
 
 
+    void Sudoku::clone_map()
+    {
+        for(int i=0;i<81;i++){
+            tmp[i]=map[i];
+            tmp2[i]=map[i];
+        }
+    }
+
+    bool Sudoku::only()
+    {
+        for(int i =0;i<81;i++)
+        {
+            if(tmp[i]!=tmp2[i])
+            {
+                return false;
+            }
+        }
+        return true;
+    }
